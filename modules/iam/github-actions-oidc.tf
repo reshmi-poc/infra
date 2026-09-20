@@ -1,7 +1,3 @@
-# ─── GitHub Actions OIDC Federation ─────────────────────────────────────────
-#
-# Allows GitHub Actions workflows in your repos to assume an IAM role
-# without any long-lived AWS credentials stored in GitHub Secrets.
 #
 # How it works:
 #   1. GitHub mints a short-lived OIDC token per workflow run
@@ -46,15 +42,14 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
       values = [
-        "repo:${var.github_org}/frontend:*",
-        "repo:${var.github_org}/frontend:ref:refs/heads/develop",
-        "repo:${var.github_org}/backend:*",
-        "repo:${var.github_org}/backend:ref:refs/heads/develop",
+        "repo:${var.github_org}@*/frontend@*:*",
+        "repo:${var.github_org}@*/frontend@*:ref:refs/heads/develop",
+        "repo:${var.github_org}@*/backend@*:*",
+        "repo:${var.github_org}@*/backend@*:ref:refs/heads/develop",
       ]
     }
   }
 }
-
 resource "aws_iam_role" "github_actions_ci" {
   name                 = "${var.project}-${var.env}-github-actions-role"
   assume_role_policy   = data.aws_iam_policy_document.github_actions_assume_role.json
